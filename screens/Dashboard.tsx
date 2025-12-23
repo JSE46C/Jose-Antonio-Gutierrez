@@ -4,15 +4,50 @@ import { useNavigate } from 'react-router-dom';
 import { MOCK_WORK_ORDERS, CLIENT_AVATAR } from '../constants';
 import { OrderStatus } from '../types';
 
+type FilterType = 'Pendientes' | 'Hoy' | 'Urgentes';
+
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [activeFilter, setActiveFilter] = useState<FilterType>('Pendientes');
 
-  // Filter out completed orders as requested ("hace desaparecer la ot")
-  const visibleOrders = useMemo(() => {
-    return MOCK_WORK_ORDERS.filter(order => order.status !== OrderStatus.COMPLETED);
-  }, [MOCK_WORK_ORDERS]);
+  // Calculate KPIs
+  const kpis = useMemo(() => {
+    const technicianName = "Sergio Gutierrez";
+    let totalHours = 0;
+    
+    MOCK_WORK_ORDERS.forEach(order => {
+      order.laborLogs.forEach(log => {
+        if (log.technician === technicianName && log.time.includes('Today')) {
+          // Extract numerical value from duration string like "2.5 hrs"
+          const hours = parseFloat(log.duration);
+          if (!isNaN(hours)) totalHours += hours;
+        }
+      });
+    });
+
+    const pendingCount = MOCK_WORK_ORDERS.filter(o => o.status !== OrderStatus.COMPLETED).length;
+
+    return {
+      totalHours,
+      pendingCount
+    };
+  }, []);
+
+  // Filter orders based on active tab and completion status
+  const filteredOrders = useMemo(() => {
+    let orders = MOCK_WORK_ORDERS.filter(order => order.status !== OrderStatus.COMPLETED);
+
+    if (activeFilter === 'Hoy') {
+      orders = orders.filter(o => o.dueDate.toLowerCase().includes('today'));
+    } else if (activeFilter === 'Urgentes') {
+      orders = orders.filter(o => o.status === OrderStatus.HIGH_PRIORITY);
+    }
+    // 'Pendientes' shows all non-completed orders by default
+
+    return orders;
+  }, [activeFilter]);
 
   const toggleSelect = (id: string) => {
     setSelectedIds(prev => 
@@ -60,20 +95,59 @@ const Dashboard: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {/* KPIs Section */}
+        <div className="grid grid-cols-2 gap-3 px-4 py-2">
+          <div className="bg-white dark:bg-surface-dark rounded-2xl p-3 border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-3">
+             <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-primary">assignment</span>
+             </div>
+             <div>
+                <p className="text-xl font-black leading-none">{kpis.pendingCount}</p>
+                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-tighter">OTs Pendientes</p>
+             </div>
+          </div>
+          <div className="bg-white dark:bg-surface-dark rounded-2xl p-3 border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-3">
+             <div className="size-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-amber-600">timer</span>
+             </div>
+             <div>
+                <p className="text-xl font-black leading-none">{kpis.totalHours.toFixed(1)}h</p>
+                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-tighter">Horas Hoy</p>
+             </div>
+          </div>
+        </div>
+
+        {/* Functional Filter Tabs */}
         <div className="flex gap-2 px-4 py-3 overflow-x-auto no-scrollbar mask-gradient-right">
-          <button className="shrink-0 flex h-8 items-center justify-center px-4 rounded-full bg-primary text-white text-[10px] font-black uppercase tracking-widest">Pendientes</button>
-          <button className="shrink-0 flex h-8 items-center justify-center px-4 rounded-full bg-slate-200 dark:bg-surface-dark text-slate-700 dark:text-slate-300 text-[10px] font-black uppercase tracking-widest">Hoy</button>
-          <button className="shrink-0 flex h-8 items-center justify-center px-4 rounded-full bg-slate-200 dark:bg-surface-dark text-slate-700 dark:text-slate-300 text-[10px] font-black uppercase tracking-widest">Urgentes</button>
+          <button 
+            onClick={() => setActiveFilter('Pendientes')}
+            className={`shrink-0 flex h-8 items-center justify-center px-4 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${activeFilter === 'Pendientes' ? 'bg-primary text-white' : 'bg-slate-200 dark:bg-surface-dark text-slate-700 dark:text-slate-300'}`}
+          >
+            Pendientes
+          </button>
+          <button 
+            onClick={() => setActiveFilter('Hoy')}
+            className={`shrink-0 flex h-8 items-center justify-center px-4 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${activeFilter === 'Hoy' ? 'bg-primary text-white' : 'bg-slate-200 dark:bg-surface-dark text-slate-700 dark:text-slate-300'}`}
+          >
+            Hoy
+          </button>
+          <button 
+            onClick={() => setActiveFilter('Urgentes')}
+            className={`shrink-0 flex h-8 items-center justify-center px-4 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${activeFilter === 'Urgentes' ? 'bg-primary text-white' : 'bg-slate-200 dark:bg-surface-dark text-slate-700 dark:text-slate-300'}`}
+          >
+            Urgentes
+          </button>
         </div>
       </header>
 
       <main className="flex flex-col gap-4 p-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Hoja de Ruta</h3>
-          <span className="text-[10px] font-bold text-primary uppercase">8 de Mayo, 2024</span>
+          <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">{activeFilter}</h3>
+          <span className="text-[10px] font-bold text-primary uppercase">{filteredOrders.length} Resultados</span>
         </div>
 
-        {visibleOrders.map((order) => (
+        {filteredOrders.map((order) => (
           <div 
             key={order.id}
             onClick={() => isSelectMode ? toggleSelect(order.id) : navigate(`/details/${order.id}`)}
@@ -119,10 +193,10 @@ const Dashboard: React.FC = () => {
           </div>
         ))}
 
-        {visibleOrders.length === 0 && (
+        {filteredOrders.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-slate-500">
-            <span className="material-symbols-outlined text-6xl opacity-20">task_alt</span>
-            <p className="mt-4 font-bold text-sm">¡Todas las OTs completadas!</p>
+            <span className="material-symbols-outlined text-6xl opacity-20">inventory_2</span>
+            <p className="mt-4 font-bold text-sm">No hay órdenes en esta categoría</p>
           </div>
         )}
       </main>
@@ -132,7 +206,7 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between p-4 animate-in slide-in-from-bottom-4 duration-300">
             <div className="flex flex-col">
               <span className="text-xs font-black text-primary uppercase tracking-widest">{selectedIds.length} OT Seleccionadas</span>
-              <p className="text-[10px] text-slate-500 font-medium">Lote del cliente listo</p>
+              <p className="text-[10px] text-slate-500 font-medium">Acción de cierre masivo</p>
             </div>
             <button 
               onClick={handleBatchSign}
@@ -156,7 +230,7 @@ const Dashboard: React.FC = () => {
             </button>
             <button onClick={() => navigate('/search')} className="flex flex-col items-center justify-center gap-1 text-slate-400">
               <span className="material-symbols-outlined">map</span>
-              <span className="text-[10px] font-black uppercase tracking-tighter">Mapa</span>
+              <span className="text-[10px] font-black uppercase tracking-tighter">Buscador</span>
             </button>
           </div>
         )}
