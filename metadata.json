@@ -1,0 +1,7 @@
+{
+  "name": "Copy of Field Service Pro",
+  "description": "A comprehensive mobile-first field service management application for tracking work orders, equipment maintenance, and technician assignments with a robust command center and signature finalization.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
