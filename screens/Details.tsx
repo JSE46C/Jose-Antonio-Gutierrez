@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MOCK_WORK_ORDERS } from '../constants';
-import { OrderStatus } from '../types';
+import { OrderStatus, OrderCategory } from '../types';
 
 const Details: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -47,6 +47,9 @@ const Details: React.FC = () => {
     }, 0);
   }, [order.laborLogs]);
 
+  // Logic to determine if Checklist button should be visible
+  const showChecklistButton = order.category === OrderCategory.PREVENTIVA || order.category === OrderCategory.PERIODICA;
+
   return (
     <div className="relative flex flex-col min-h-screen bg-background-light dark:bg-background-dark pb-64">
       <div className="sticky top-0 z-50 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
@@ -87,6 +90,17 @@ const Details: React.FC = () => {
           </div>
         </section>
 
+        {/* Checklist Button (Conditional) */}
+        {showChecklistButton && (
+          <button 
+            onClick={() => alert("Navegando al formulario Checklist...")}
+            className="flex items-center justify-center gap-3 w-full p-4 rounded-2xl bg-indigo-600 text-white font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20 active:scale-[0.98] transition-all"
+          >
+            <span className="material-symbols-outlined">fact_check</span>
+            <span>Completar Checklist</span>
+          </button>
+        )}
+
         {/* Machine Card */}
         <div className="flex bg-white dark:bg-surface-dark rounded-3xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm gap-4 items-center">
            <div className="size-20 shrink-0 rounded-2xl bg-cover bg-center border border-slate-100 dark:border-slate-800 shadow-inner" style={{backgroundImage: `url("${order.imageUrl}")`}} />
@@ -95,7 +109,7 @@ const Details: React.FC = () => {
              <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mt-1 truncate uppercase tracking-wide">{order.location}</p>
              <div className="flex gap-2 mt-3">
                 <span className="bg-slate-100 dark:bg-slate-800 text-slate-500 text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider">Ref: {order.id}</span>
-                <span className="bg-slate-100 dark:bg-slate-800 text-slate-500 text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider">Mec: {order.assignee.split(' ')[0]}</span>
+                <span className="bg-slate-100 dark:bg-slate-800 text-slate-500 text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider">Cat: {order.category}</span>
              </div>
            </div>
         </div>

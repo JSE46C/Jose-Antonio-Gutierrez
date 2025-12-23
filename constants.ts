@@ -1,5 +1,5 @@
 
-import { OrderStatus, WorkOrder } from './types';
+import { OrderStatus, WorkOrder, OrderCategory } from './types';
 
 export interface Client {
   id: string;
@@ -23,6 +23,7 @@ export const MOCK_WORK_ORDERS: WorkOrder[] = [
     id: 'WO-4829',
     title: 'Genie GS-1930 (Scissor Lift)',
     subtitle: 'Battery Maintenance',
+    category: OrderCategory.AVERIA,
     status: OrderStatus.HIGH_PRIORITY,
     assignee: 'Roberto Sanchez',
     clientName: 'Logistics Center Inc.',
@@ -42,6 +43,7 @@ export const MOCK_WORK_ORDERS: WorkOrder[] = [
     id: 'WO-4880',
     title: 'Toyota 8FGU25 (Forklift)',
     subtitle: 'Mast Hydraulic Inspection',
+    category: OrderCategory.AVERIA,
     status: OrderStatus.IN_PROGRESS,
     assignee: 'Maria Garcia',
     clientName: 'Main Warehouse Ltd.',
@@ -57,6 +59,7 @@ export const MOCK_WORK_ORDERS: WorkOrder[] = [
     id: 'WO-5012',
     title: 'Haulotte HA16 RTJ',
     subtitle: 'Engine Service',
+    category: OrderCategory.PREVENTIVA,
     status: OrderStatus.PENDING,
     assignee: 'Sergio Gutierrez',
     clientName: 'Construction Site X',
@@ -72,6 +75,7 @@ export const MOCK_WORK_ORDERS: WorkOrder[] = [
     id: 'WO-5120',
     title: 'JLG 450AJ Articulated Boom',
     subtitle: 'Hydraulic Leak',
+    category: OrderCategory.AVERIA,
     status: OrderStatus.IN_PROGRESS,
     assignee: 'Ivan Gutierrez',
     clientName: 'Industrial Park South',
@@ -87,6 +91,7 @@ export const MOCK_WORK_ORDERS: WorkOrder[] = [
     id: 'WO-5244',
     title: 'Still RX 20-20 (Electric Forklift)',
     subtitle: 'Display Error E244',
+    category: OrderCategory.AVERIA,
     status: OrderStatus.PENDING,
     assignee: 'Roberto Sanchez',
     clientName: 'Cold Storage Co.',
@@ -102,6 +107,7 @@ export const MOCK_WORK_ORDERS: WorkOrder[] = [
     id: 'WO-5301',
     title: 'Manitou MT 625 H',
     subtitle: 'Forks Adjustment',
+    category: OrderCategory.AVERIA,
     status: OrderStatus.HIGH_PRIORITY,
     assignee: 'Maria Garcia',
     clientName: 'Urban Builders',
@@ -117,6 +123,7 @@ export const MOCK_WORK_ORDERS: WorkOrder[] = [
     id: 'WO-5400',
     title: 'Linde H35T (LPG Forklift)',
     subtitle: 'Cooling System Check',
+    category: OrderCategory.AVERIA,
     status: OrderStatus.IN_PROGRESS,
     assignee: 'Sergio Gutierrez',
     clientName: 'Main Warehouse Ltd.',
@@ -132,6 +139,7 @@ export const MOCK_WORK_ORDERS: WorkOrder[] = [
     id: 'WO-5589',
     title: 'Hyster H2.5XT',
     subtitle: 'Chain Lubrication',
+    category: OrderCategory.PREVENTIVA,
     status: OrderStatus.PENDING,
     assignee: 'Ivan Gutierrez',
     clientName: 'Agro Industrial SA',
@@ -147,6 +155,7 @@ export const MOCK_WORK_ORDERS: WorkOrder[] = [
     id: 'WO-5612',
     title: 'Komatsu FB25-12',
     subtitle: 'Brake Pad Replacement',
+    category: OrderCategory.PERIODICA,
     status: OrderStatus.PENDING,
     assignee: 'Roberto Sanchez',
     clientName: 'Steel Mill North',

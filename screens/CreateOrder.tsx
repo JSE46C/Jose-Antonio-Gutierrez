@@ -1,13 +1,18 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MOCK_CLIENTS } from '../constants';
+import { MOCK_CLIENTS, MOCK_WORK_ORDERS } from '../constants';
+import { OrderCategory, OrderStatus } from '../types';
 
 const CreateOrder: React.FC = () => {
   const navigate = useNavigate();
   const [selectedClientId, setSelectedClientId] = useState('');
   const [locationValue, setLocationValue] = useState('');
   const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<OrderCategory>(OrderCategory.AVERIA);
+  const [machineId, setMachineId] = useState('');
+  const [description, setDescription] = useState('');
+  const [isUrgente, setIsUrgente] = useState(false);
 
   const handleClientChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const clientId = e.target.value;
@@ -39,6 +44,35 @@ const CreateOrder: React.FC = () => {
     );
   };
 
+  const handleCreate = () => {
+    if (!selectedClientId) {
+      alert("Por favor selecciona un cliente.");
+      return;
+    }
+
+    const client = MOCK_CLIENTS.find(c => c.id === selectedClientId);
+    
+    const newOrder = {
+      id: `WO-${Math.floor(1000 + Math.random() * 9000)}`,
+      title: machineId || 'Equipo Sin Especificar',
+      subtitle: selectedCategory,
+      category: selectedCategory,
+      status: isUrgente ? OrderStatus.HIGH_PRIORITY : OrderStatus.PENDING,
+      assignee: 'Sergio Gutierrez',
+      clientName: client?.name || 'Cliente Genérico',
+      clientId: selectedClientId,
+      location: locationValue || 'Ubicación no especificada',
+      description: description || 'Sin descripción adicional.',
+      imageUrl: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=200&auto=format&fit=crop',
+      dueDate: 'Today, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      materials: [],
+      laborLogs: []
+    };
+
+    MOCK_WORK_ORDERS.unshift(newOrder);
+    navigate('/');
+  };
+
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <header className="flex items-center justify-between px-4 py-3 bg-background-light dark:bg-background-dark shrink-0 z-20 border-b border-slate-200 dark:border-slate-800">
@@ -53,9 +87,30 @@ const CreateOrder: React.FC = () => {
         <div className="flex flex-col pt-4">
           <h2 className="text-slate-900 dark:text-white text-base font-bold px-5 pb-3">Tipo de Orden</h2>
           <div className="flex gap-3 px-5 overflow-x-auto no-scrollbar pb-2">
-            <TypeChip icon="build" label="Reparación" active />
-            <TypeChip icon="handyman" label="Mantenimiento" />
-            <TypeChip icon="troubleshoot" label="Diagnóstico" />
+            <TypeChip 
+              icon="build" 
+              label="Avería" 
+              active={selectedCategory === OrderCategory.AVERIA} 
+              onClick={() => setSelectedCategory(OrderCategory.AVERIA)} 
+            />
+            <TypeChip 
+              icon="verified" 
+              label="Revisión preventiva" 
+              active={selectedCategory === OrderCategory.PREVENTIVA} 
+              onClick={() => setSelectedCategory(OrderCategory.PREVENTIVA)} 
+            />
+            <TypeChip 
+              icon="history" 
+              label="Revisión periódica" 
+              active={selectedCategory === OrderCategory.PERIODICA} 
+              onClick={() => setSelectedCategory(OrderCategory.PERIODICA)} 
+            />
+            <TypeChip 
+              icon="assignment" 
+              label="Trabajo ofertado" 
+              active={selectedCategory === OrderCategory.OFERTADO} 
+              onClick={() => setSelectedCategory(OrderCategory.OFERTADO)} 
+            />
           </div>
         </div>
 
@@ -104,7 +159,11 @@ const CreateOrder: React.FC = () => {
             <p className="text-slate-600 dark:text-[#9dabb9] text-xs font-black uppercase tracking-widest pb-2">Máquina / Activo ID</p>
             <div className="flex gap-2">
               <div className="relative flex-1">
-                <input className="w-full rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-primary border border-slate-200 dark:border-[#3b4754] bg-white dark:bg-[#1c2127] h-14 px-4 text-base transition-all" placeholder="Ej: GEN-150..." />
+                <input 
+                  value={machineId}
+                  onChange={(e) => setMachineId(e.target.value)}
+                  className="w-full rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-primary border border-slate-200 dark:border-[#3b4754] bg-white dark:bg-[#1c2127] h-14 px-4 text-base transition-all" placeholder="Ej: GEN-150..." 
+                />
               </div>
               <button className="flex h-14 w-14 items-center justify-center rounded-xl bg-slate-100 dark:bg-[#283039] text-slate-700 dark:text-white hover:bg-slate-200 transition-colors border border-slate-200 dark:border-[#3b4754]">
                 <span className="material-symbols-outlined">qr_code_scanner</span>
@@ -123,23 +182,33 @@ const CreateOrder: React.FC = () => {
               <span className="text-[10px] font-black text-orange-500 uppercase tracking-wide">Urgente</span>
             </div>
           </div>
-          <textarea className="w-full rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-primary border border-slate-200 dark:border-[#3b4754] bg-white dark:bg-[#1c2127] h-32 p-4 text-base transition-all" placeholder="Describe el problema reportado..."></textarea>
+          <textarea 
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-primary border border-slate-200 dark:border-[#3b4754] bg-white dark:bg-[#1c2127] h-32 p-4 text-base transition-all" 
+            placeholder="Describe el problema reportado..."
+          ></textarea>
         </div>
 
         <div className="flex flex-col px-5 pt-4 gap-3">
           <div className="flex items-center justify-between py-2">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
-                <span className="material-symbols-outlined text-primary">notifications</span>
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-orange-500/10">
+                <span className="material-symbols-outlined text-orange-500">priority_high</span>
               </div>
               <div>
-                <p className="text-sm font-black text-slate-900 dark:text-white">Notificar al Jefe de Taller</p>
-                <p className="text-[10px] text-slate-500 font-bold">Enviar aviso de nueva asignación</p>
+                <p className="text-sm font-black text-slate-900 dark:text-white">Marcar como Urgente</p>
+                <p className="text-[10px] text-slate-500 font-bold">Prioridad alta en el dashboard</p>
               </div>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
-              <input defaultChecked className="sr-only peer" type="checkbox" />
-              <div className="w-11 h-6 bg-slate-200 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+              <input 
+                checked={isUrgente}
+                onChange={(e) => setIsUrgente(e.target.checked)}
+                className="sr-only peer" 
+                type="checkbox" 
+              />
+              <div className="w-11 h-6 bg-slate-200 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
             </label>
           </div>
         </div>
@@ -147,7 +216,7 @@ const CreateOrder: React.FC = () => {
 
       <div className="absolute bottom-0 left-0 w-full p-5 bg-gradient-to-t from-background-light dark:from-background-dark via-background-light dark:via-background-dark to-transparent z-30 pt-10">
         <button 
-          onClick={() => navigate('/')}
+          onClick={handleCreate}
           className="group w-full h-16 bg-primary hover:bg-blue-600 active:scale-[0.98] text-white rounded-2xl font-black text-lg shadow-lg shadow-primary/30 flex items-center justify-center gap-3 transition-all duration-200"
         >
           <span>CREAR ORDEN</span>
@@ -158,8 +227,11 @@ const CreateOrder: React.FC = () => {
   );
 };
 
-const TypeChip: React.FC<{ icon: string; label: string; active?: boolean }> = ({ icon, label, active }) => (
-  <div className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-5 cursor-pointer transition-transform active:scale-95 ${active ? 'bg-primary text-white shadow-lg shadow-blue-500/20' : 'bg-white dark:bg-[#283039] border border-slate-200 dark:border-transparent text-slate-700 dark:text-slate-300'}`}>
+const TypeChip: React.FC<{ icon: string; label: string; active?: boolean; onClick?: () => void }> = ({ icon, label, active, onClick }) => (
+  <div 
+    onClick={onClick}
+    className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-5 cursor-pointer transition-transform active:scale-95 ${active ? 'bg-primary text-white shadow-lg shadow-blue-500/20' : 'bg-white dark:bg-[#283039] border border-slate-200 dark:border-transparent text-slate-700 dark:text-slate-300'}`}
+  >
     <span className="material-symbols-outlined text-[18px]">{icon}</span>
     <p className="text-xs font-black uppercase tracking-tight">{label}</p>
   </div>

@@ -6,6 +6,13 @@ export enum OrderStatus {
   HIGH_PRIORITY = 'Urgente'
 }
 
+export enum OrderCategory {
+  AVERIA = 'Avería',
+  PREVENTIVA = 'Revisión preventiva',
+  PERIODICA = 'Revisión periódica',
+  OFERTADO = 'Trabajo ofertado'
+}
+
 export interface Material {
   id: string;
   name: string;
@@ -29,6 +36,7 @@ export interface WorkOrder {
   id: string;
   title: string;
   subtitle: string;
+  category: OrderCategory;
   status: OrderStatus;
   assignee: string;
   clientName: string;
