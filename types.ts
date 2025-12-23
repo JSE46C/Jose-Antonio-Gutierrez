@@ -1,9 +1,9 @@
 
 export enum OrderStatus {
-  PENDING = 'Pending',
-  IN_PROGRESS = 'In Progress',
-  COMPLETED = 'Completed',
-  HIGH_PRIORITY = 'High Priority'
+  PENDING = 'Pendiente de firma',
+  IN_PROGRESS = 'En curso',
+  COMPLETED = 'Completada',
+  HIGH_PRIORITY = 'Urgente'
 }
 
 export interface Material {
@@ -12,6 +12,7 @@ export interface Material {
   sku: string;
   quantity: number;
   price: number;
+  comment?: string;
 }
 
 export interface LaborLog {
@@ -20,6 +21,7 @@ export interface LaborLog {
   initials: string;
   time: string;
   duration: string;
+  type: 'HN' | 'Extra' | 'Travel';
 }
 
 export interface WorkOrder {
@@ -28,6 +30,8 @@ export interface WorkOrder {
   subtitle: string;
   status: OrderStatus;
   assignee: string;
+  clientName: string;
+  clientId: string;
   location: string;
   description: string;
   imageUrl: string;

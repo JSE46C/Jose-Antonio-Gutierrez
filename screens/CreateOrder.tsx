@@ -72,8 +72,8 @@ const CreateOrder: React.FC = () => {
                 <span className="material-symbols-outlined text-primary">notifications</span>
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-900 dark:text-white">Notify Client</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Send SMS confirmation</p>
+                <p className="text-sm font-medium text-slate-900 dark:text-white">Notificar al Jefe de Taller</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Enviar aviso de nueva asignación</p>
               </div>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">

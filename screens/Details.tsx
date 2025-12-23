@@ -1,153 +1,156 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MOCK_WORK_ORDERS } from '../constants';
+import { OrderStatus } from '../types';
 
 const Details: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const order = MOCK_WORK_ORDERS.find(o => o.id === id) || MOCK_WORK_ORDERS[0];
+  const [currentStatus, setCurrentStatus] = useState<OrderStatus>(order.status);
+
+  const handleStatusChange = (newStatus: OrderStatus) => {
+    setCurrentStatus(newStatus);
+    order.status = newStatus;
+  };
 
   return (
-    <div className="relative flex flex-col min-h-screen bg-background-light dark:bg-background-dark pb-32">
+    <div className="relative flex flex-col min-h-screen bg-background-light dark:bg-background-dark pb-48">
       <div className="sticky top-0 z-50 bg-background-light dark:bg-background-dark border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center p-4 justify-between h-16">
           <button onClick={() => navigate(-1)} className="text-slate-900 dark:text-white flex items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors size-10">
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <h2 className="text-slate-900 dark:text-white text-lg font-bold">Work Order #{order.id}</h2>
+          <div className="flex flex-col items-center">
+            <h2 className="text-slate-900 dark:text-white text-sm font-bold uppercase tracking-widest">OT #{order.id}</h2>
+            <p className="text-[10px] text-slate-500 font-medium">{order.clientName}</p>
+          </div>
           <button className="text-slate-900 dark:text-white flex items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors size-10">
             <span className="material-symbols-outlined">more_vert</span>
           </button>
         </div>
       </div>
 
-      <main className="flex flex-col gap-4 p-4">
-        <div className="flex flex-col items-stretch justify-start rounded-xl overflow-hidden shadow-sm bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-800">
-          <div className="relative w-full aspect-video">
-            <div className="absolute inset-0 bg-cover bg-center" style={{backgroundImage: `url("${order.imageUrl}")`}}></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-            <div className="absolute top-3 left-3">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-primary text-white shadow-lg">{order.status}</span>
-            </div>
-            <div className="absolute bottom-3 left-4 right-4">
-              <h1 className="text-white text-2xl font-bold leading-tight drop-shadow-md">{order.title}</h1>
-            </div>
+      <main className="flex flex-1 flex-col gap-4 p-4">
+        {/* Status Selector Section */}
+        <section className="space-y-3">
+          <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Estado de la OT</h3>
+          <div className="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-slate-800/50 p-1.5 rounded-2xl">
+            <button 
+              onClick={() => handleStatusChange(OrderStatus.IN_PROGRESS)}
+              className={`py-3 rounded-xl text-[10px] font-black uppercase tracking-tighter transition-all ${currentStatus === OrderStatus.IN_PROGRESS ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
+            >
+              En curso
+            </button>
+            <button 
+              onClick={() => handleStatusChange(OrderStatus.PENDING)}
+              className={`py-3 rounded-xl text-[10px] font-black uppercase tracking-tighter transition-all ${currentStatus === OrderStatus.PENDING ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
+            >
+              Pendiente Firma
+            </button>
           </div>
-          <div className="flex flex-col gap-4 p-4">
-            <div className="flex items-start gap-3">
-              <div className="bg-primary/10 p-2 rounded-lg shrink-0">
-                <span className="material-symbols-outlined text-primary text-[20px]">location_on</span>
-              </div>
-              <div>
-                <p className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase tracking-wide">Location</p>
-                <p className="text-slate-900 dark:text-white text-base font-medium">{order.location}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <div className="bg-primary/10 p-2 rounded-lg shrink-0">
-                <span className="material-symbols-outlined text-primary text-[20px]">description</span>
-              </div>
-              <div>
-                <p className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase tracking-wide">Reported Issue</p>
-                <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed mt-1">{order.description}</p>
-              </div>
-            </div>
-          </div>
+        </section>
+
+        {/* Machine Info Card */}
+        <div className="flex bg-white dark:bg-surface-dark rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm gap-4 items-center">
+           <div className="size-20 shrink-0 rounded-xl bg-cover bg-center border border-slate-100 dark:border-slate-800" style={{backgroundImage: `url("${order.imageUrl}")`}} />
+           <div className="flex-1 min-w-0">
+             <h3 className="font-black text-lg leading-tight truncate">{order.title}</h3>
+             <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mt-1 truncate uppercase">{order.location}</p>
+             <div className="flex gap-2 mt-2">
+                <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider ${currentStatus === OrderStatus.IN_PROGRESS ? 'bg-amber-500/10 text-amber-600' : 'bg-primary/10 text-primary'}`}>
+                  {currentStatus}
+                </span>
+                <span className="bg-slate-100 dark:bg-slate-800 text-slate-500 text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider">Ref: {order.id.split('-')[1]}</span>
+             </div>
+           </div>
         </div>
 
-        <div className="flex items-center justify-between mt-2">
-          <h3 className="text-slate-900 dark:text-white text-lg font-bold">Activity Log</h3>
-          <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Total Est: $70.00</span>
+        {/* Issue Description */}
+        <div className="p-5 rounded-2xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-800 shadow-sm">
+          <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Problema Reportado</h4>
+          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">{order.description}</p>
         </div>
 
-        <div className="flex flex-col gap-3">
-          <details className="group rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-800 open:ring-1 open:ring-primary/50 transition-all duration-200" open>
-            <summary className="flex cursor-pointer items-center justify-between p-4 list-none">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center size-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-primary">
-                  <span className="material-symbols-outlined text-[20px]">schedule</span>
-                </div>
-                <div>
-                  <p className="text-slate-900 dark:text-white text-sm font-semibold">Labor Logs</p>
-                  <p className="text-slate-500 dark:text-slate-400 text-xs">3.5 Hours logged</p>
-                </div>
-              </div>
-              <span className="material-symbols-outlined text-slate-400 transition-transform group-open:rotate-180">expand_more</span>
-            </summary>
-            <div className="px-4 pb-4 pt-0 flex flex-col gap-2 border-t border-slate-100 dark:border-slate-800 mt-2">
-              {order.laborLogs.map(log => (
-                <div key={log.id} className="pt-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="size-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-300">{log.initials}</div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-slate-900 dark:text-white">{log.technician}</span>
-                      <span className="text-xs text-slate-500 dark:text-slate-400">{log.time}</span>
-                    </div>
-                  </div>
-                  <span className="text-sm font-bold text-slate-900 dark:text-white font-mono bg-slate-100 dark:bg-surface-highlight px-2 py-1 rounded">{log.duration}</span>
-                </div>
-              ))}
-              {order.laborLogs.length === 0 && <p className="pt-4 text-sm text-slate-500 italic">No labor logged yet.</p>}
+        {/* Combined Activity / Input Log */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between pl-1">
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Historial de Trabajo</h3>
+            <button onClick={() => navigate('/add-item')} className="text-primary text-[10px] font-black uppercase tracking-widest flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm">add</span> Añadir
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            {/* Labor Summary */}
+            <div className="bg-white dark:bg-surface-dark rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+               <div className="bg-slate-50 dark:bg-slate-800/30 px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                  <span className="text-[10px] font-black text-slate-400 uppercase">Mano de Obra (HN)</span>
+                  <span className="text-xs font-black text-primary">3.5h Totales</span>
+               </div>
+               {order.laborLogs.length > 0 ? order.laborLogs.map(log => (
+                 <div key={log.id} className="p-4 flex items-center justify-between border-b last:border-b-0 border-slate-50 dark:border-slate-800/50">
+                   <div className="flex items-center gap-3">
+                     <span className="bg-blue-100 text-blue-600 dark:bg-primary/10 dark:text-primary px-2 py-0.5 rounded text-[10px] font-black uppercase">{log.type}</span>
+                     <span className="text-sm text-slate-900 dark:text-white font-bold">{log.technician}</span>
+                   </div>
+                   <span className="font-mono text-sm font-black text-slate-900 dark:text-white">{log.duration}</span>
+                 </div>
+               )) : (
+                 <p className="p-6 text-xs text-slate-500 font-medium italic text-center">Sin imputaciones de tiempo.</p>
+               )}
             </div>
-          </details>
-          
-          <details className="group rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-800 open:ring-1 open:ring-primary/50 transition-all duration-200" open>
-            <summary className="flex cursor-pointer items-center justify-between p-4 list-none">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center size-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400">
-                  <span className="material-symbols-outlined text-[20px]">inventory_2</span>
-                </div>
-                <div>
-                  <p className="text-slate-900 dark:text-white text-sm font-semibold">Materials Used</p>
-                  <p className="text-slate-500 dark:text-slate-400 text-xs">{order.materials.length} Items</p>
-                </div>
-              </div>
-              <span className="material-symbols-outlined text-slate-400 transition-transform group-open:rotate-180">expand_more</span>
-            </summary>
-            <div className="flex flex-col border-t border-slate-100 dark:border-slate-800">
-              {order.materials.map(mat => (
-                <div key={mat.id} className="flex items-center gap-4 px-4 py-3 justify-between hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className="text-slate-600 dark:text-slate-300 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-surface-highlight shrink-0 size-10">
-                      <span className="material-symbols-outlined text-[20px]">build</span>
-                    </div>
-                    <div className="flex flex-col justify-center">
-                      <p className="text-slate-900 dark:text-white text-sm font-medium line-clamp-1">{mat.name}</p>
-                      <p className="text-slate-500 dark:text-slate-400 text-xs font-normal line-clamp-2">SKU: {mat.sku} | Qty: {mat.quantity}</p>
-                    </div>
-                  </div>
-                  <div className="shrink-0"><p className="text-slate-900 dark:text-white text-sm font-medium">${mat.price.toFixed(2)}</p></div>
-                </div>
-              ))}
-              {order.materials.length === 0 && <p className="p-4 text-sm text-slate-500 italic">No materials added.</p>}
+
+            {/* Materials Summary */}
+            <div className="bg-white dark:bg-surface-dark rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+               <div className="bg-slate-50 dark:bg-slate-800/30 px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                  <span className="text-[10px] font-black text-slate-400 uppercase">Materiales (Furgoneta)</span>
+                  <span className="text-xs font-black text-primary">{order.materials.length} Artículos</span>
+               </div>
+               {order.materials.length > 0 ? order.materials.map(mat => (
+                 <div key={mat.id} className="p-4 flex items-center justify-between border-b last:border-b-0 border-slate-50 dark:border-slate-800/50">
+                   <div className="flex flex-col min-w-0">
+                     <span className="text-sm text-slate-900 dark:text-white font-bold truncate">{mat.name}</span>
+                     <span className="text-[10px] text-slate-500 font-mono font-bold uppercase">Ref: {mat.sku}</span>
+                   </div>
+                   <div className="text-right ml-4">
+                      <span className="bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-lg font-black text-sm">x{mat.quantity}</span>
+                   </div>
+                 </div>
+               )) : (
+                 <p className="p-6 text-xs text-slate-500 font-medium italic text-center">No se han añadido materiales aún.</p>
+               )}
             </div>
-          </details>
+          </div>
         </div>
       </main>
 
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 p-4 max-w-md mx-auto">
-        <div className="flex gap-3">
+      {/* Mechanic Sticky Footer - Quick Actions */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-background-dark/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 p-5 max-w-md mx-auto space-y-4">
+        <div className="grid grid-cols-2 gap-4">
           <button 
-            onClick={() => navigate('/add-item')}
-            className="flex flex-1 flex-col items-center justify-center gap-1 p-2 rounded-xl bg-slate-100 dark:bg-surface-highlight text-slate-600 dark:text-slate-300 active:scale-95 transition-transform"
+            onClick={() => navigate('/add-item?type=labor')}
+            className="flex flex-col items-center justify-center gap-1 h-16 rounded-2xl bg-slate-100 dark:bg-surface-highlight text-slate-900 dark:text-white font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-sm"
           >
-            <span className="material-symbols-outlined text-2xl">add_circle</span>
-            <span className="text-[10px] font-semibold uppercase tracking-wide">Add Item</span>
-          </button>
-          <button className="flex flex-1 flex-col items-center justify-center gap-1 p-2 rounded-xl bg-slate-100 dark:bg-surface-highlight text-slate-600 dark:text-slate-300 active:scale-95 transition-transform">
-            <span className="material-symbols-outlined text-2xl">timer</span>
-            <span className="text-[10px] font-semibold uppercase tracking-wide">Log Time</span>
+            <span className="material-symbols-outlined text-2xl mb-1 text-primary">timer</span>
+            <span>Fichar Tiempo</span>
           </button>
           <button 
-            onClick={() => navigate(`/complete/${order.id}`)}
-            className="flex-[2] flex items-center justify-center gap-2 rounded-xl bg-primary text-white font-bold text-base shadow-lg shadow-blue-500/20 active:scale-95 transition-transform"
+            onClick={() => navigate('/add-item?type=material')}
+            className="flex flex-col items-center justify-center gap-1 h-16 rounded-2xl bg-slate-100 dark:bg-surface-highlight text-slate-900 dark:text-white font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-sm"
           >
-            <span className="material-symbols-outlined">check_circle</span>
-            <span>Complete Job</span>
+            <span className="material-symbols-outlined text-2xl mb-1 text-primary">inventory_2</span>
+            <span>Añadir Material</span>
           </button>
         </div>
-        <div className="h-2"></div>
+        <button 
+          onClick={() => navigate(`/complete/${order.id}`)}
+          className="w-full flex items-center justify-center gap-3 h-16 rounded-2xl bg-primary text-white font-black text-lg shadow-xl shadow-primary/30 active:scale-95 transition-all"
+        >
+          <span className="material-symbols-outlined text-2xl">draw</span>
+          <span>FIRMAR Y FINALIZAR</span>
+        </button>
       </div>
     </div>
   );
