@@ -1,6 +1,23 @@
 
 import { OrderStatus, WorkOrder } from './types';
 
+export interface Client {
+  id: string;
+  name: string;
+  defaultLocation: string;
+}
+
+export const MOCK_CLIENTS: Client[] = [
+  { id: 'CL-990', name: 'Logistics Center Inc.', defaultLocation: 'Calle Logística 44, Madrid' },
+  { id: 'CL-552', name: 'Main Warehouse Ltd.', defaultLocation: 'Polígono Industrial Norte, Nave 12' },
+  { id: 'CL-122', name: 'Construction Site X', defaultLocation: 'Av. Gran Vía s/n, Obra Sector 7' },
+  { id: 'CL-880', name: 'Industrial Park South', defaultLocation: 'Ctra. de Toledo km 12.5' },
+  { id: 'CL-440', name: 'Cold Storage Co.', defaultLocation: 'Muelle de Carga 1, Mercamadrid' },
+  { id: 'CL-211', name: 'Urban Builders', defaultLocation: 'Plaza Castilla 2, Planta 4' },
+  { id: 'CL-099', name: 'Agro Industrial SA', defaultLocation: 'Finca El Olivo, Camino Real' },
+  { id: 'CL-333', name: 'Steel Mill North', defaultLocation: 'Sestao, Vizcaya' }
+];
+
 export const MOCK_WORK_ORDERS: WorkOrder[] = [
   {
     id: 'WO-4829',
@@ -18,7 +35,7 @@ export const MOCK_WORK_ORDERS: WorkOrder[] = [
       { id: '1', name: 'Hydraulic Seal Kit', sku: 'HSK-9920', quantity: 1, price: 45.00 }
     ],
     laborLogs: [
-      { id: 'L1', technician: 'John Doe', initials: 'JD', time: 'Today, 10:00 AM', duration: '2.5 hrs', type: 'HN' }
+      { id: 'L1', technician: 'John Doe', initials: 'JD', time: 'Today, 10:00 AM', duration: '2.5', type: 'HN' }
     ]
   },
   {

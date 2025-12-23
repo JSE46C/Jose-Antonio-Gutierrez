@@ -17,7 +17,7 @@ const CompleteOrder: React.FC = () => {
   const initialBatch = queryParams.get('batch')?.split(',') || [primaryOrder.id];
 
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>(initialBatch);
-  const [reportType, setReportType] = useState<'budgeted' | 'detailed'>('detailed');
+  const [reportType, setReportType] = useState<'detailed' | 'summary'>('detailed');
   const [extraEmail, setExtraEmail] = useState('');
   const [showEmailInput, setShowEmailInput] = useState(false);
   const [markAsCompleted, setMarkAsCompleted] = useState(true);
@@ -27,22 +27,6 @@ const CompleteOrder: React.FC = () => {
       setSelectedOrderIds(queryParams.get('batch')?.split(',') || []);
     }
   }, [location.search]);
-
-  const otherOpenOrders = useMemo(() => {
-    return MOCK_WORK_ORDERS.filter(o => 
-      o.clientId === primaryOrder.clientId && 
-      o.id !== primaryOrder.id &&
-      o.status !== OrderStatus.COMPLETED
-    );
-  }, [primaryOrder]);
-
-  const toggleOrderSelection = (orderId: string) => {
-    setSelectedOrderIds(prev => 
-      prev.includes(orderId) 
-        ? prev.filter(i => i !== orderId) 
-        : [...prev, orderId]
-    );
-  };
 
   const handleFinalize = () => {
     if (selectedOrderIds.length === 0) {
@@ -58,6 +42,7 @@ const CompleteOrder: React.FC = () => {
     }
 
     let message = `¡${selectedOrderIds.length} partes firmados y enviados!`;
+    message += `\nConfiguración: ${reportType === 'detailed' ? 'Parte con detalle completo' : 'Resumen sin detalle'}.`;
     if (markAsCompleted) message += `\nLas órdenes han sido marcadas como completadas.`;
     
     alert(message);
@@ -106,9 +91,27 @@ const CompleteOrder: React.FC = () => {
       </section>
 
       <section className="px-4 space-y-4">
-        <div className="flex p-1.5 rounded-2xl bg-slate-200 dark:bg-slate-800 shadow-inner">
-          <button onClick={() => setReportType('budgeted')} className={`flex-1 py-3 text-[10px] uppercase font-black tracking-widest rounded-xl transition-all ${reportType === 'budgeted' ? 'bg-white dark:bg-surface-dark text-primary shadow-sm' : 'text-slate-500'}`}>Presupuestado</button>
-          <button onClick={() => setReportType('detailed')} className={`flex-1 py-3 text-[10px] uppercase font-black tracking-widest rounded-xl transition-all ${reportType === 'detailed' ? 'bg-white dark:bg-surface-dark text-primary shadow-sm' : 'text-slate-500'}`}>Por Horas</button>
+        <div className="flex flex-col gap-2">
+          <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Configuración del Parte (PDF)</h3>
+          <div className="flex p-1.5 rounded-2xl bg-slate-200 dark:bg-slate-800 shadow-inner">
+            <button 
+              onClick={() => setReportType('detailed')} 
+              className={`flex-1 py-3 text-[10px] uppercase font-black tracking-widest rounded-xl transition-all ${reportType === 'detailed' ? 'bg-white dark:bg-surface-dark text-primary shadow-sm' : 'text-slate-500'}`}
+            >
+              Con Detalle
+            </button>
+            <button 
+              onClick={() => setReportType('summary')} 
+              className={`flex-1 py-3 text-[10px] uppercase font-black tracking-widest rounded-xl transition-all ${reportType === 'summary' ? 'bg-white dark:bg-surface-dark text-primary shadow-sm' : 'text-slate-500'}`}
+            >
+              Sin Detalle
+            </button>
+          </div>
+          <p className="text-[10px] text-slate-500 font-medium px-2 text-center">
+            {reportType === 'detailed' 
+              ? 'El cliente verá el desglose completo de materiales, horas de mano de obra e información de desplazamientos.' 
+              : 'El cliente solo recibirá el resumen general de la intervención sin desglose técnico.'}
+          </p>
         </div>
 
         <div className={`p-5 rounded-2xl bg-white dark:bg-surface-dark border transition-all shadow-sm ${showEmailInput ? 'border-primary ring-4 ring-primary/10' : 'border-slate-200 dark:border-slate-800'}`}>
@@ -144,7 +147,6 @@ const CompleteOrder: React.FC = () => {
       </section>
 
       <div className="fixed bottom-0 left-0 right-0 p-5 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 z-50 max-w-md mx-auto space-y-4">
-        {/* COMPLETADO OPTION INTEGRATED HERE */}
         <div className="flex items-center justify-between px-2">
           <div className="flex flex-col">
              <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Marcar como completadas</p>

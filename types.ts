@@ -21,7 +21,8 @@ export interface LaborLog {
   initials: string;
   time: string;
   duration: string;
-  type: 'HN' | 'Extra' | 'Travel';
+  type: 'HN' | 'Extra' | 'Travel' | 'KM' | 'Zone';
+  reference?: string; // For Zone names or specific references
 }
 
 export interface WorkOrder {

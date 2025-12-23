@@ -113,7 +113,7 @@ const Dashboard: React.FC = () => {
              </div>
              <div>
                 <p className="text-xl font-black leading-none">{kpis.totalHours.toFixed(1)}h</p>
-                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-tighter">Horas Hoy</p>
+                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-tighter">Imputado Hoy</p>
              </div>
           </div>
         </div>
@@ -206,14 +206,14 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between p-4 animate-in slide-in-from-bottom-4 duration-300">
             <div className="flex flex-col">
               <span className="text-xs font-black text-primary uppercase tracking-widest">{selectedIds.length} OT Seleccionadas</span>
-              <p className="text-[10px] text-slate-500 font-medium">Acción de cierre masivo</p>
+              <p className="text-[10px] text-slate-500 font-medium">Lote listo para firma</p>
             </div>
             <button 
               onClick={handleBatchSign}
               className="h-14 px-8 bg-primary text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg shadow-primary/30 active:scale-95 transition-all flex items-center gap-3"
             >
               <span>Continuar</span>
-              <span className="material-symbols-outlined">arrow_forward</span>
+              <span className="material-symbols-outlined">draw</span>
             </button>
           </div>
         ) : (
@@ -229,7 +229,7 @@ const Dashboard: React.FC = () => {
               <span className="material-symbols-outlined text-[32px]">add</span>
             </button>
             <button onClick={() => navigate('/search')} className="flex flex-col items-center justify-center gap-1 text-slate-400">
-              <span className="material-symbols-outlined">map</span>
+              <span className="material-symbols-outlined">search</span>
               <span className="text-[10px] font-black uppercase tracking-tighter">Buscador</span>
             </button>
           </div>
